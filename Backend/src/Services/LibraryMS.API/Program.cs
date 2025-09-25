@@ -1,4 +1,7 @@
 using LibraryMS.API.Data;
+using LibraryMS.API.Helpers;
+using LibraryMS.API.Services;
+using LibraryMS.API.Services.Interfaces;
 using LibraryMS.API.UOW;
 using LibraryMS.API.UOW.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +20,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContextPool<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 #endregion
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<AutoMapperProfiles>();
+});
 
 var app = builder.Build();
 

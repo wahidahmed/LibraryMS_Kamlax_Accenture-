@@ -9,5 +9,6 @@ namespace LibraryMS.API.UOW.Interfaces
         IGenericRepository<Library> Library { get; }
         IGenericRepository<BookLoan> BookLoan { get; }
         IGenericRepository<Member> Member { get; }
+        Task<bool> SaveAsync();
     }
 }
