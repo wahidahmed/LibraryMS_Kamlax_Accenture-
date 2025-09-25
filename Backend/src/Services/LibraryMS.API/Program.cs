@@ -1,4 +1,6 @@
 using LibraryMS.API.Data;
+using LibraryMS.API.UOW;
+using LibraryMS.API.UOW.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,7 @@ builder.Services.AddSwaggerGen();
 #region Database Settings
 builder.Services.AddDbContextPool<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 #endregion
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
