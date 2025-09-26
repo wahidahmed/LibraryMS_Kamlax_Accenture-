@@ -24,12 +24,14 @@ namespace LibraryMS.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var success = await _loanService.BorrowBookAsync(request);
+            var check = await _loanService.BorrowBookAsync(request);
+            if(check == "")
+                return Ok(new { message = "Book borrowed successfully", loanDate = DateTime.UtcNow });
+            else
+                return BadRequest(check);
 
-            if (!success)
-                return BadRequest("Unable to borrow book. Check availability or data.");
 
-            return Ok(new { message = "Book borrowed successfully", loanDate = DateTime.UtcNow });
+
         }
 
         [HttpPost("return/{loanId}")]

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using LibraryMS.API.Data.Entities;
 using LibraryMS.API.Dtos;
+using LibraryMS.API.Services;
+using LibraryMS.API.Services.Interfaces;
 using LibraryMS.API.UOW.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +16,13 @@ namespace LibraryMS.API.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly IBookService bookService;
 
-        public BookController(IUnitOfWork unitOfWork,IMapper mapper)
+        public BookController(IUnitOfWork unitOfWork, IMapper mapper, IBookService bookService)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.bookService = bookService;
         }
 
         [HttpPost]
@@ -26,22 +30,21 @@ namespace LibraryMS.API.Controllers
         {
             var library = await unitOfWork.Library.GetByIDAsync(dto.LibraryId);
             if (library == null) return BadRequest("Invalid Library ID");
-            var book=mapper.Map<Book>(dto);
-            book.AvailableCopies=dto.TotalCopies;
+            var book = mapper.Map<Book>(dto);
+            book.AvailableCopies = dto.TotalCopies;
             book.ISBN = Guid.NewGuid().ToString()[..8];
             book.createdBy = 0;
             book.createdOn = DateTime.UtcNow;
             unitOfWork.Book.Insert(book);
             await unitOfWork.SaveAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = book.BookId }, book);
+            return Ok(200);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var book = await unitOfWork.Book
-                .GetFirstOrDefaultAsync(b => b.BookId == id);
+            var book = await bookService.GetByIdAsync(id);
 
             return book == null ? NotFound() : Ok(book);
         }
@@ -50,7 +53,7 @@ namespace LibraryMS.API.Controllers
 
         public async Task<IActionResult> Get()
         {
-            var data=await unitOfWork.Book.GetAsync();
+            var data = await bookService.GetAllAsync();
             return Ok(data);
         }
 
@@ -59,7 +62,9 @@ namespace LibraryMS.API.Controllers
         {
             var existing = await unitOfWork.Book.GetByIDAsync(id);
             if (existing == null) return NotFound();
-            var entity=mapper.Map(dto,existing);
+            var entity = mapper.Map(dto, existing);
+            entity.updatedBy = 0;
+            entity.UpdatedOn = DateTime.UtcNow;
             unitOfWork.Book.Update(entity);
             await unitOfWork.SaveAsync();
 
@@ -86,6 +91,16 @@ namespace LibraryMS.API.Controllers
                 .GetAsync(b => b.AvailableCopies > 0);
 
             return Ok(books);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<BookDto>>> SearchBooks( string query,int? libraryId = null)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Search query is required.");
+
+            var results = await bookService.SearchBooksAsync(query.Trim(), libraryId);
+            return Ok(results);
         }
     }
 }

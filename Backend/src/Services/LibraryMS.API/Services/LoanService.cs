@@ -17,20 +17,32 @@ namespace LibraryMS.API.Services
             _context = context;
         }
 
-        public async Task<bool> BorrowBookAsync(BorrowRequestDto request)
+        public async Task<string> BorrowBookAsync(BorrowRequestDto request)
         {
             var book = await _context.Books.FindAsync(request.BookId);
             var member = await _context.Members.FindAsync(request.MemberId);
             var library = await _context.Libraries.FindAsync(request.LibraryId);
 
-            if (book == null || member == null || library == null)
-                return false;
+            if (book == null)
+            {
+                return "the book is not fonud";
+            }
+            if (member == null)
+            {
+                return "the member is not fonud";
+            }
+            if (library == null)
+            {
+                return "the library is not fonud";
+            }
+            //if (book == null || member == null || library == null)
+            //    return false;
 
             if (book.AvailableCopies <= 0)
-                return false;
+                return "there is no available book";
 
             if (book.LibraryId != request.LibraryId || member.LibraryId != request.LibraryId)
-                return false; // Must belong to same library
+                return "This libaray is not belongs to this member or book";
 
             var loan = new BookLoan
             {
@@ -46,7 +58,7 @@ namespace LibraryMS.API.Services
             _context.BookLoans.Add(loan);
             await _context.SaveChangesAsync();
 
-            return true;
+            return "";
         }
 
         public async Task<bool> ReturnBookAsync(int loanId)
@@ -70,7 +82,7 @@ namespace LibraryMS.API.Services
             var today = DateTime.UtcNow.ToDateOnly();// ToDateOnly is an Extension  method for Dateonly convertion
 
             var overdueLoans = _context.BookLoans
-                .Where(l => l.DueDate < today && l.ReturnDate == null)
+                .Where(l => l.DueDate >= today && l.ReturnDate == null)
                 .Include(l => l.Book)
                 .Include(l => l.Member)
                 .Select(l => new LoanResponseDto
@@ -91,8 +103,9 @@ namespace LibraryMS.API.Services
 
         public async Task<IEnumerable<LoanResponseDto>> GetOverdueLoansAsync()
         {
+            var today = DateTime.UtcNow.ToDateOnly();// ToDateOnly is an Extension  method for Dateonly convertion
             var result = _context.BookLoans
-                .Where(l => l.DueDate < DateTime.UtcNow.ToDateOnly() && l.ReturnDate == null)
+                .Where(l => l.DueDate < today && l.ReturnDate == null)
                 .Include(l => l.Book)
                 .Include(l => l.Member)
                 .Select(l => new LoanResponseDto

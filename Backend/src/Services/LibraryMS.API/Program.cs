@@ -21,6 +21,9 @@ builder.Services.AddDbContextPool<AppDbContext>(option => option.UseSqlServer(bu
 #endregion
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 
 builder.Services.AddAutoMapper(cfg =>

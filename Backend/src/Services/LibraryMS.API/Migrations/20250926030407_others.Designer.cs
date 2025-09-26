@@ -4,6 +4,7 @@ using LibraryMS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryMS.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250926030407_others")]
+    partial class others
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +73,7 @@ namespace LibraryMS.API.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("LibraryMS.API.Data.Entities.BookLoan", b =>
@@ -119,7 +122,7 @@ namespace LibraryMS.API.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("BookLoans", (string)null);
+                    b.ToTable("BookLoans");
                 });
 
             modelBuilder.Entity("LibraryMS.API.Data.Entities.Library", b =>
@@ -162,7 +165,7 @@ namespace LibraryMS.API.Migrations
 
                     b.HasKey("LibraryId");
 
-                    b.ToTable("Libraries", (string)null);
+                    b.ToTable("Libraries");
                 });
 
             modelBuilder.Entity("LibraryMS.API.Data.Entities.Member", b =>
@@ -214,7 +217,7 @@ namespace LibraryMS.API.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.ToTable("Members", (string)null);
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("LibraryMS.API.Data.Entities.Book", b =>

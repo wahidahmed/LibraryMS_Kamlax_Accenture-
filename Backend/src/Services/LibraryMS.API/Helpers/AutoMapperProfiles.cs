@@ -17,6 +17,14 @@ namespace LibraryMS.API.Helpers
             CreateMap<Book, CreateBookDto>().ReverseMap();
             CreateMap<UpdateBookDto, Book>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => ShouldMap(srcValue)));
+
+            CreateMap<Member, CreateMemberDto>().ReverseMap();
+            CreateMap<UpdateMemberDto, Member>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => ShouldMap(srcValue)));
+
+            CreateMap<Library, CreateLibraryDto>().ReverseMap();
+            CreateMap<UpdateLibraryDto, Library>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcValue) => ShouldMap(srcValue)));
         }
 
         // it is needed to map data during update any value to set DB value persist
